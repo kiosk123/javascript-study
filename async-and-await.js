@@ -12,3 +12,17 @@ async function process() {
     await sleep(1000)
     console.log('반갑습니다.')
 }
+
+async function makeError() {
+    await sleep(1000)
+    throw new Error("make error")
+}
+
+// 비동기 함수 에러 처리
+async function errorProcess() {
+    try {
+        await makeError()
+    } catch (e) {
+        console.log(e)
+    }
+}
