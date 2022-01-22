@@ -320,6 +320,47 @@ async function process() {
 
 process()
 ```
+`Promise.all([Promise 배열])`은 Promise <span style="color:cyan; fontweight:bold;">배열중 하나라도 에러가 발생하면 전체 프로미스가 에러가 난 것으로 간주</span>한다.
+```js
+'use strict'
+
+const sleep = (ms) => {
+    return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+const getDog = async () => {
+    await sleep(1000)
+    return '멍멍이'
+}
+
+const getRabbit = async () => {
+    await sleep(500)
+    return '토끼'
+}
+
+const getTurtle = async () => {
+    const start = Date.now()
+    await sleep(3000)
+    const end = Date.now()
+    const waitingTime = end - start
+
+    if (waitingTime > 2000) {
+        throw new Error("Turtle is very slow")
+    }
+    
+    return '거북이'
+}
+
+async function process() {
+    try {
+        const [dog, rabbit, turtle] = await Promise.all([getDog(), getRabbit(), getTurtle()])
+    } catch (e) {
+        console.log(e) 
+    }
+}
+
+process() // Turtle is very slow
+```
 
 `Promise.race([Promise 배열])`는 Promise 배열 중에서 가장 빨리 끝난 Promise 하나만 반환한다.
 ```js
@@ -350,5 +391,48 @@ async function process() {
 }
 
 process()
+```
+
+`Promise.race([Promise 배열])`은 Promise <span style="color:cyan; fontweight:bold;">배열에서 에러가 발생한 부분에서 에러가 나면 에러가 난 Promise 이전 순서로 처리된 Promise는 성공으로 그 이후 순서로 처리 될 Promise는 실패로 간주</span>한다.  
+```js
+'use strict'
+
+const sleep = (ms) => {
+    return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+const getDog = async () => {
+    const start = Date.now()
+    await sleep(1000)
+    const end = Date.now()
+    const waitingTime = end - start
+
+    if (waitingTime > 500) {
+        throw new Error("Dog is crazy")
+    }
+    return '멍멍이'
+}
+
+const getRabbit = async () => {
+    await sleep(500)
+    return '토끼'
+}
+
+const getTurtle = async () => {
+
+    await sleep(3000)
+    return '거북이'
+}
+
+async function process() {
+    try {
+        const result = await Promise.race([getDog(), getRabbit(), getTurtle()])
+        console.log(result)
+    } catch (e) {
+        console.log(e) 
+    }
+}
+
+process() // '토끼' 만 출력됨
 ```
 
